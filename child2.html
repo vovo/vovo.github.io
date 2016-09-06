@@ -9,20 +9,25 @@
       // see if we have a catch-all element to do something with
 
       function fallbackHandler(e) {
+        return document.querySelector('.click-handler');
+/*
         var elt;
         // Identify an appropriate catch-all element
         if (e.type == 'click') {
           console.log('Handling click');
           //elt = document.querySelector('.click-handler');
-          elt = true;
+          //return true;
+          return document.querySelector('.click-handler');
         } else {
           console.log('Unknown event');
           elt = false;
+          return false;
         }
+*/
 
         // Converted to true/false when the event returns so we know if an
         // action has been taken
-        return elt;
+        //return elt;
       }
 
       // Capturing disabled
