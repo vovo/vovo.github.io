@@ -9,6 +9,7 @@
       // see if we have a catch-all element to do something with
 
       function fallbackHandler(e) {
+        var _tmp = e.type;
         return document.querySelector('.click-handler');
 /*
         var elt;
