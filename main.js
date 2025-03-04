@@ -1,4 +1,8 @@
-function alloc(sizeMB, randomRatio) {
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+function alloc_block(sizeMB, randomRatio) {
+  console.log("size: " + sizeMB + ", ratio: " + randomRatio);
   const FLOAT64_BYTES = 8;
   const MB = 1024 * 1024;
   const count = sizeMB* MB / FLOAT64_BYTES * randomRatio;
@@ -14,20 +18,45 @@ function alloc(sizeMB, randomRatio) {
   }
   return [content, content2];
 }
+async function alloc(sizeMB, randomRatio, sleepMS_100MB) {
+  var remainMB = sizeMB;
+  var result = []
+  var startTime = new Date();
+  while (remainMB > 0) {
+    if (remainMB > 100) {
+      result.push(alloc_block(100, randomRatio));
+    } else {
+      result.push(alloc_block(remainMB, randomRatio));
+    }
+    remainMB -= 100;
+    if (sleepMS_100MB != 0) {
+      await sleep(sleepMS_100MB);
+    }
+  }
+  console.log("Done");
+  var ellapse = (new Date() - startTime) / 1000;
+  // Shows the loading time for manual test.
+  $("#display").text(`Allocating ${sizeMB} MB takes ${ellapse} seconds. Ratio: ${randomRatio}`);
+  return result;
+}
 $(document).ready(function() {
   var url = new URL(window.location.href);
   var allocMB = parseInt(url.searchParams.get("alloc"));
   if (isNaN(allocMB))
     allocMB = 800;
   var randomRatio = parseFloat(url.searchParams.get("ratio"));
-  if (isNaN(randomRatio))
-    randomRatio = 0.666
+  if (isNaN(randomRatio)) {
+    randomRatio = 0.666;
+  }
+  var randomRatio = parseFloat(url.searchParams.get("ratio"));
+  if (isNaN(randomRatio)) {
+    randomRatio = 0.666;
+  }
+  var sleepMS = parseFloat(url.searchParams.get("sleep"));
+  if (isNaN(sleepMS)) {
+    sleepMS = 0;
+  }
 
-  var startTime = new Date();
   // Assigns the content to docuement to avoid optimization of unused data.
-  document.out = alloc(allocMB, randomRatio);
-  var ellapse = (new Date() - startTime) / 1000;
-  // Shows the loading time for manual test.
-  $("#display").text(`Allocating ${allocMB} MB takes ${ellapse} seconds. Ratio: ${randomRatio}`);
+  document.out = alloc(allocMB, randomRatio, sleepMS);
 });
-
